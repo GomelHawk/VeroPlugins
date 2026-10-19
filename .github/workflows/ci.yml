@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  # A plugin repository can break this catalog without a commit here, so each plugin
+  # repository's release workflow sends this event when a release tag is pushed (its
+  # `.github/workflows/release.yml`, with the VEROPLUGINS_DISPATCH_TOKEN secret). The
+  # payload names the plugin and version; every job runs, the same as for a push.
+  repository_dispatch:
+    types: [plugin-released]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  catalog:
+    name: Catalog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+
+      # Deliberately the newest release: the plugin API is early access, and a change in it
+      # should fail here before it reaches a user. The log names the version that ran.
+      - name: Install Claude Code CLI
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude --version
+
+      # `claude plugin validate` reads local files only - no account, no API key.
+      - name: Validate the catalog
+        run: claude plugin validate .
+
+      - name: Validate again, warnings as errors
+        run: claude plugin validate . --strict
+
+      # The canonical source check's table, run against the engine itself.
+      - name: Test the shared source check
+        run: claude plugin test shared
+
+  entries:
+    name: Entries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+
+      - name: Install Claude Code CLI
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude --version
+
+      # Clones every listed plugin repository and checks the entry against it: the name,
+      # no version, no marketplace of its own, the shared source check byte for byte,
+      # `claude plugin validate` and `claude plugin test`.
+      - name: Say which release asked for this run
+        if: github.event_name == 'repository_dispatch'
+        run: echo "released ${{ github.event.client_payload.plugin }} ${{ github.event.client_payload.version }}"
+
+      - name: Check every entry against its plugin repository
+        run: scripts/check-entries.sh
+
+  install:
+    # The only check that proves git-subdir resolves end to end: a throwaway HOME adds
+    # this checkout as a marketplace and installs every listed plugin from it, which
+    # clones each plugin repository the way a user's Claude Code would.
+    name: Install, for real
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+
+      - name: Install Claude Code CLI
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude --version
+
+      - name: Add the marketplace and install every plugin in a scratch HOME
+        run: |
+          export HOME="$RUNNER_TEMP/home"
+          mkdir -p "$HOME"
+          claude plugin marketplace add "$GITHUB_WORKSPACE"
+          bad=0
+          for name in $(jq -r '.plugins[].name' .claude-plugin/marketplace.json); do
+            if ! claude plugin install "$name@vero-plugins"; then
+              echo "install failed: $name@vero-plugins"; bad=1; continue
+            fi
+            dir="$(ls -d "$HOME/.claude/plugins/cache/vero-plugins/$name"/*/ 2>/dev/null | head -n 1)"
+            if [ -n "$dir" ] && [ -f "$dir/.claude-plugin/plugin.json" ]; then
+              echo "installed: $name $(jq -r '.version' "$dir/.claude-plugin/plugin.json") at $dir"
+            else
+              echo "no cached copy for $name under ~/.claude/plugins/cache/vero-plugins/"; bad=1
+            fi
+          done
+          claude plugin list
+          exit "$bad"
+
+  shell:
+    name: Shell lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Parse every script
+        run: |
+          for f in scripts/*.sh; do
+            echo "bash -n $f"
+            bash -n "$f"
+          done
+
+      - name: ShellCheck
+        run: |
+          shellcheck --version
+          shellcheck -s bash -S warning scripts/*.sh
+
+  endings:
+    name: Line endings and permissions
+    runs-on: ubuntu-latest
+    steps:
+      # A clone with core.autocrlf=true is what a Windows user gets. Without
+      # .gitattributes it hands them scripts that die on "/usr/bin/env: 'bash\r'".
+      # The commit under test, not the default branch: for a pull request github.sha is
+      # its merge commit, which GitHub serves by hash.
+      - name: Check out the way a Windows user would
+        run: |
+          git init -q checkout
+          git -C checkout config core.autocrlf true
+          git -C checkout fetch -q --depth 1 "${{ github.server_url }}/${{ github.repository }}" "${{ github.sha }}"
+          git -C checkout checkout -q FETCH_HEAD
+
+      - name: No CRLF reached the working tree
+        working-directory: checkout
+        run: |
+          bad=0
+          for f in scripts/*.sh shared/hooks/source-check.ts .claude-plugin/marketplace.json; do
+            if grep -q $'\r$' "$f"; then echo "CRLF in $f"; bad=1; else echo "LF ok: $f"; fi
+          done
+          for f in scripts/*.sh; do
+            if [ ! -x "$f" ]; then echo "not executable: $f"; bad=1; fi
+          done
+          exit "$bad"

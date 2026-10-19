@@ -1,0 +1,7 @@
+# The scripts are bash, and a shell script with CRLF line endings dies on Linux and WSL
+# with "bad interpreter: /usr/bin/env bash^M". core.autocrlf=true is the default on
+# Windows installs of git, so pin the endings here rather than trusting every clone's
+# local config. The source check is compared byte for byte with every plugin's copy, so
+# its endings must not depend on the clone either.
+* text=auto eol=lf
+*.png binary

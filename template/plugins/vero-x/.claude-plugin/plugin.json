@@ -1,0 +1,15 @@
+{
+  "name": "vero-x",
+  "displayName": "VeroX",
+  "description": "SLOGAN_X ONE_LINE_X",
+  "version": "0.1.0",
+  "author": {
+    "name": "Dmitry Koshelenko",
+    "url": "https://github.com/GomelHawk"
+  },
+  "homepage": "https://github.com/GomelHawk/VeroX",
+  "repository": "https://github.com/GomelHawk/VeroX",
+  "license": "MIT",
+  "keywords": [],
+  "types": "./types/index.d.ts"
+}
