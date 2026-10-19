@@ -70,8 +70,9 @@ rm -rf "$TARGET/plugins/vero-x/.claude-plugin/types" "$TARGET/plugins/vero-x/tsc
 mv "$TARGET/plugins/vero-x" "$TARGET/plugins/$KEY"
 
 # The placeholders, in every text file. Binary files (the logos) are left alone.
+YEAR="$(date +%Y)"
 export NP_KEY="$KEY" NP_DISPLAY="$DISPLAY_NAME" NP_SLOGAN="$SLOGAN" NP_ONE_LINE="$ONE_LINE" \
-       NP_KEEPS="$KEEPS" NP_REQUIRES="$REQUIRES" NP_YEAR="$(date +%Y)" NP_TARGET="$TARGET"
+       NP_KEEPS="$KEEPS" NP_REQUIRES="$REQUIRES" NP_YEAR="$YEAR" NP_TARGET="$TARGET"
 python3 - <<'PY'
 import os, pathlib
 root = pathlib.Path(os.environ['NP_TARGET'])

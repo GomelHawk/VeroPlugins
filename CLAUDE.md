@@ -49,7 +49,7 @@ VeroPlugins/
 ├── .github/dependabot.yml              watches the CI actions; there are no deps
 ├── .gitattributes                      * text=auto eol=lf; png binary
 ├── .gitignore                          .idea, PLAN-*.md, the engine's files under shared/
-├── assets/                             banner.png, social-preview.png, vero-<name>.png (96×96)
+├── assets/                             banner.png, social-preview.png, vero-<name>.png (the horizontal logo, 520 px)
 ├── shared/hooks/source-check.ts        the canonical source check every plugin carries
 ├── shared/hooks/hooks.json             test harness only: names harness.ts for `claude plugin test`
 ├── shared/hooks/harness.ts             an empty module; shared/ is never an installable plugin
@@ -150,8 +150,8 @@ Only a `dev` copy consults it, so no installed copy can opt out through it.
    checks the standard's machine-checkable rules (STANDARD.md, section 11).
 5. In a scratch `HOME`: `claude plugin marketplace add "$PWD"`, then
    `claude plugin install <name>@vero-plugins`; check the cache folder.
-6. README table row (`**[Vero<Word>](…)**<br>*<slogan>*`) + `scripts/assets.py` for the icon,
-   the banner and the social preview.
+6. README table row (the horizontal logo linked to the repository) + `scripts/assets.py`
+   for the table logo, the banner and the social preview.
 7. CI green, including the install job. Hand back the commit message.
 
 ## How a release reaches this repo

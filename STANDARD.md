@@ -19,8 +19,8 @@ file and `template/` disagree, fix both in the same change.
   coloured in the logo (`One turn, one diff.`, `Read true. Spend less.`,
   `Click. Run. Done.`). It appears in exactly these places: the horizontal logo; the
   README's logo `alt` as `Vero<Word> - <slogan>`; the first sentence of `description` in
-  `plugin.json`; the first sentence of the catalog entry's `description`; the second line
-  of the catalog README's table cell (`**[Vero<Word>](…)**<br>*<slogan>*`); the first line
+  `plugin.json`; the first sentence of the catalog entry's `description`; the catalog
+  README's table, through the horizontal logo and its `alt`; the first line
   of the plugin's `/vero-<word>` answer (`**Vero<Word>** - *<slogan>*`); the intro of
   CLAUDE.md; the GitHub About text.
 - **One line**: one plain sentence that says what the plugin does for the person, no
@@ -119,8 +119,9 @@ colour; the slogan under the wordmark, grey with the key words in the accent col
 draft can be any size: the script measures the icon and the text and scales each to the
 table.
 
-The catalog then needs, from `scripts/assets.py` run in VeroPlugins: the 96×96 table icon
-`assets/vero-<word>.png` (the icon part of `logo.png`), and a rebuilt `banner.png` and
+The catalog then needs, from `scripts/assets.py` run in VeroPlugins: `assets/vero-<word>.png`,
+a 520 px wide copy of the horizontal logo that the README's table shows (so the table
+never depends on the plugin repository), and a rebuilt `banner.png` and
 `social-preview.png` (1280×640) that show every plugin's horizontal logo. A plugin
 repository's own social preview is its `horizontal-logo.png`.
 
@@ -189,8 +190,8 @@ repository's own social preview is its `horizontal-logo.png`.
 
 1. The repository is public on `main` with everything above.
 2. The catalog entry in `.claude-plugin/marketplace.json` (`git-subdir`, no `version`).
-3. The README table row, `assets/vero-<word>.png`, the banner and the preview via
-   `scripts/assets.py`.
+3. The README table row (the horizontal logo linked to the repository), then
+   `scripts/assets.py` for `assets/vero-<word>.png`, the banner and the preview.
 4. `claude plugin validate . --strict`, `scripts/check-entries.sh vero-<word>`, a scratch
    `HOME` install (`CLAUDE.md`, "Testing").
 5. CI green here, then the GitHub About, Website, Topics and social preview on the new

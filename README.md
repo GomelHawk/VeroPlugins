@@ -31,11 +31,11 @@ does the same.
 
 ## The plugins
 
-| | Plugin | What it does | Install |
-| :-- | :-- | :-- | :-- |
-| <img src="https://raw.githubusercontent.com/GomelHawk/VeroPlugins/main/assets/vero-diff.png" width="48" alt=""> | **[VeroDiff](https://github.com/GomelHawk/VeroDiff)**<br>*One turn, one diff.* | See exactly what Claude changed on each turn, as a real diff in a side pane, and undo it. | `/plugin install vero-diff@vero-plugins` |
-| <img src="https://raw.githubusercontent.com/GomelHawk/VeroPlugins/main/assets/vero-dotto.png" width="48" alt=""> | **[VeroDotto](https://github.com/GomelHawk/VeroDotto)**<br>*Read true. Spend less.* | Claude reads docx, pdf, spreadsheets and OpenDocument files as clean markdown, with fewer tokens. | `/plugin install vero-dotto@vero-plugins` |
-| <img src="https://raw.githubusercontent.com/GomelHawk/VeroPlugins/main/assets/vero-runto.png" width="48" alt=""> | **[VeroRunto](https://github.com/GomelHawk/VeroRunto)**<br>*Click. Run. Done.* | **Copy** and **Run** buttons after every `!` command Claude suggests; Run goes through Claude Code's own Bash tool, under your permission rules. | `/plugin install vero-runto@vero-plugins` |
+| Plugin | What it does | Install |
+| :-- | :-- | :-- |
+| <a href="https://github.com/GomelHawk/VeroDiff"><img src="https://raw.githubusercontent.com/GomelHawk/VeroPlugins/main/assets/vero-diff.png" width="260" alt="VeroDiff - One turn, one diff."></a> | See exactly what Claude changed on each turn, as a real diff in a side pane, and undo it. | `/plugin install vero-diff@vero-plugins` |
+| <a href="https://github.com/GomelHawk/VeroDotto"><img src="https://raw.githubusercontent.com/GomelHawk/VeroPlugins/main/assets/vero-dotto.png" width="260" alt="VeroDotto - Read true. Spend less."></a> | Claude reads docx, pdf, spreadsheets and OpenDocument files as clean markdown, with fewer tokens. | `/plugin install vero-dotto@vero-plugins` |
+| <a href="https://github.com/GomelHawk/VeroRunto"><img src="https://raw.githubusercontent.com/GomelHawk/VeroPlugins/main/assets/vero-runto.png" width="260" alt="VeroRunto - Click. Run. Done."></a> | **Copy** and **Run** buttons after every `!` command Claude suggests; Run goes through Claude Code's own Bash tool, under your permission rules. | `/plugin install vero-runto@vero-plugins` |
 
 Type the install command on its own line, press Enter, then restart Claude Code. In the
 desktop app, pick the plugin under **Plugins** → **Add plugin** instead. Each plugin's own
