@@ -73,6 +73,7 @@ const MOVE = [
   '/plugin marketplace add GomelHawk/VeroPlugins',
   '/plugin install vero-x@vero-plugins',
   '/plugin uninstall vero-x@some-marketplace',
+  '/plugin marketplace remove some-marketplace',
 ]
 
 for (const surface of ['terminal', 'desktop'] as const) {
@@ -116,7 +117,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
       expect(text).not.toContain('SLOGAN_X')
     })
 
-    test('the band: the reason, three buttons, no ×, and what is drawn beneath', async ($, on) => {
+    test('the band: the reason, four buttons, no ×, and what is drawn beneath', async ($, on) => {
       fakeWorld(on, { env: { VERO_TEST_ROOT: FOREIGN } })
       await start($, surface)
       const band = await mountBand($, surface)
@@ -129,8 +130,9 @@ for (const surface of ['terminal', 'desktop'] as const) {
       expect((await band.find({ key: 'vero-x-move:1' }))?.text).toBe('1 ↓ Add VeroPlugins')
       expect((await band.find({ key: 'vero-x-move:2' }))?.text).toBe('2 ↓ Install from VeroPlugins')
       expect((await band.find({ key: 'vero-x-move:3' }))?.text).toBe('3 ↓ Remove this copy')
+      expect((await band.find({ key: 'vero-x-move:4' }))?.text).toBe('4 ↓ Remove the old marketplace')
       expect(await band.find({ type: 'Text', text: 'then restart Claude Code' })).toBeDefined()
-      expect((await band.findAll({ type: 'Button' })).length).toBe(3)
+      expect((await band.findAll({ type: 'Button' })).length).toBe(4)
       expect(await band.find({ type: 'Text', text: '×' })).toBe(undefined)
       expect(await band.find({ type: 'Text', text: 'engine: band' })).toBeDefined()
     })
@@ -142,6 +144,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
       await band.press({ key: 'vero-x-move:1' })
       await band.press({ key: 'vero-x-move:2' })
       await band.press({ key: 'vero-x-move:3' })
+      await band.press({ key: 'vero-x-move:4' })
       expect(seen.filled).toEqual(MOVE.map(text => ({ text, mode: 'replace' })))
       expect(seen.toasts.length).toBe(1)
     })
@@ -178,14 +181,14 @@ for (const surface of ['terminal', 'desktop'] as const) {
       fakeWorld(on, { env })
       await start($, surface)
       const band = await mountBand($, surface)
-      expect((await band.findAll({ type: 'Button' })).length).toBe(3)
+      expect((await band.findAll({ type: 'Button' })).length).toBe(4)
       delete (env as { VERO_TEST_ROOT?: string }).VERO_TEST_ROOT
       await $.turn.start({ text: 'next', turnId: 'T2' })
       expect(await band.find({ type: 'Button' })).toBe(undefined)
       expect(await run($)).toContain('**VeroX** - *SLOGAN_X*')
     })
 
-    test('a home copy beside an old copy: paused, with the one Remove button', async ($, on) => {
+    test('a home copy beside an old copy: paused, with the two Remove buttons', async ($, on) => {
       const settings = { project: { enabledPlugins: { 'vero-x@old-place': true } } }
       const seen = fakeWorld(on, { env: { VERO_TEST_ROOT: HOME }, settings })
       await start($, surface)
@@ -194,10 +197,16 @@ for (const surface of ['terminal', 'desktop'] as const) {
       expect(
         await band.find({ type: 'Text', text: '⛔ VeroX is paused - an old copy from old-place is still installed. Remove it, then restart.' }),
       ).toBeDefined()
-      expect((await band.findAll({ type: 'Button' })).length).toBe(1)
-      await band.press({ key: 'vero-x-move:remove' })
-      expect(seen.filled).toEqual([{ text: '/plugin uninstall vero-x@old-place --scope project', mode: 'replace' }])
-      expect(await run($)).toContain('    /plugin uninstall vero-x@old-place --scope project')
+      expect((await band.findAll({ type: 'Button' })).length).toBe(2)
+      expect((await band.find({ key: 'vero-x-move:remove-1' }))?.text).toBe('1 ↓ Remove the old copy')
+      expect((await band.find({ key: 'vero-x-move:remove-2' }))?.text).toBe('2 ↓ Remove the old marketplace')
+      await band.press({ key: 'vero-x-move:remove-1' })
+      await band.press({ key: 'vero-x-move:remove-2' })
+      expect(seen.filled).toEqual([
+        { text: '/plugin uninstall vero-x@old-place --scope project', mode: 'replace' },
+        { text: '/plugin marketplace remove old-place', mode: 'replace' },
+      ])
+      expect(await run($)).toContain('    /plugin uninstall vero-x@old-place --scope project\n    /plugin marketplace remove old-place')
 
       // the old copy removed: the next turn resumes normal work
       settings.project = { enabledPlugins: {} } as typeof settings.project
@@ -218,7 +227,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
       // ten seconds on: looked for, found, and the copy pauses
       await seen.clock.advance(1_000)
       await $.turn.start({ text: 'next', turnId: 'T3' })
-      expect((await band.findAll({ type: 'Button' })).length).toBe(1)
+      expect((await band.findAll({ type: 'Button' })).length).toBe(2)
     })
   })
 }

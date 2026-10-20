@@ -52,7 +52,7 @@ They are independent: install one, two or all three.
 ## Installed one of these some other way?
 
 Every Vero plugin installs from VeroPlugins only. A copy that came from anywhere else
-pauses and shows, above the prompt, three buttons with the exact commands that move it
+pauses and shows, above the prompt, four buttons with the exact commands that move it
 here. Press them one after another, pressing Enter after each, then restart Claude Code.
 Nothing you made is lost: VeroDiff keeps its history of changes, VeroDotto keeps its
 converted documents.

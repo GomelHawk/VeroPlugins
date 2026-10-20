@@ -64,6 +64,16 @@ claude plugin update vero-x@vero-plugins
 LINES
 }
 
+# The old marketplace a plugin repository keeps for a while after moving here (STANDARD.md,
+# section 2): the engine loads one hooks module per plugin name, the earliest-enabled
+# copy, so only a release through the old marketplace can show its installs the move.
+# Temporary: the plugin leaves this list in the release that deletes its file.
+legacy_marketplace() {
+  case "$1" in
+    vero-diff) echo "verodiff-marketplace" ;;
+  esac
+}
+
 # The `## Working rules` section of a CLAUDE.md, up to the next `## ` heading.
 working_rules() { awk '/^## Working rules/{p=1;next} /^## /{p=0} p' "$1"; }
 
@@ -72,7 +82,7 @@ png_size() { python3 -c 'import struct,sys; d=open(sys.argv[1],"rb").read(24); p
 
 check_repo() {
   local name="$1" clone="$2" path="$3" entry="$4"
-  local plugin="$clone/$path" manifest="$clone/$path/.claude-plugin/plugin.json"
+  local plugin="$clone/$path" manifest="$clone/$path/.claude-plugin/plugin.json" readme_root="$clone/README.md"
   if [ ! -f "$manifest" ]; then
     problem "$path holds no .claude-plugin/plugin.json"
     return
@@ -94,11 +104,35 @@ check_repo() {
   echo "  info  entry:       $(jq -r '.description' <<<"$entry")"
   echo "  info  plugin.json: $(jq -r '.description // ""' "$manifest")"
 
-  # No plugin repository publishes a marketplace of its own - any repo, no exceptions.
-  if [ -e "$clone/.claude-plugin/marketplace.json" ]; then
+  # No plugin repository publishes a marketplace of its own - except, for a while, the old
+  # one a plugin had before VeroPlugins, which must still deliver the move to its installs.
+  local legacy legacy_file="$clone/.claude-plugin/marketplace.json"
+  legacy="$(legacy_marketplace "$name")"
+  if [ ! -e "$legacy_file" ]; then
+    if [ -z "$legacy" ]; then
+      ok "no marketplace.json in the plugin repository"
+    else
+      problem "the temporary exception for $legacy is stale: the file is gone, remove $name from legacy_marketplace()"
+    fi
+  elif [ -z "$legacy" ]; then
     problem "the plugin repository still has .claude-plugin/marketplace.json - VeroPlugins is the only marketplace"
   else
-    ok "no marketplace.json in the plugin repository"
+    local legacy_name legacy_entries legacy_source
+    legacy_name="$(jq -r '.name // ""' "$legacy_file")"
+    legacy_entries="$(jq -r '[.plugins[]?.name] | join(",")' "$legacy_file")"
+    legacy_source="$(jq -r '.plugins[0].source // ""' "$legacy_file")"
+    if [ "$legacy_name" != "$legacy" ]; then
+      problem "the temporary marketplace.json is named '$legacy_name', not $legacy - old installs would not update from it"
+    elif [ "$legacy_entries" != "$name" ] || [ "$legacy_source" != "./$path" ]; then
+      problem "the temporary marketplace.json must list $name alone, with source ./$path (has: $legacy_entries, $legacy_source)"
+    else
+      note "temporary: the old marketplace $legacy still delivers the move to its installs; delete the file and the exception two releases after the move"
+    fi
+    if grep -rqF -- "$legacy" "$readme_root" "$plugin/README.md" "$plugin/hooks" 2>/dev/null; then
+      problem "the old marketplace's name '$legacy' appears in a README or a module - nothing visible may say how to install from it"
+    else
+      ok "the old marketplace's name appears in no README and no module"
+    fi
   fi
 
   # Every plugin carries the same source check and its table, byte for byte.

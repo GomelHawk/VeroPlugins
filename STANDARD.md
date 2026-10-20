@@ -62,6 +62,17 @@ Never: a `.claude-plugin/marketplace.json` anywhere (VeroPlugins is the only
 marketplace), a top-level `bin/` in the plugin (organization distribution rejects it), a
 `version` anywhere but `plugin.json`, the name of any other marketplace in any file.
 
+One temporary exception, for a plugin that had a marketplace of its own before
+VeroPlugins: Claude Code loads one hooks module per plugin name, the copy whose
+`enabledPlugins` key comes first, so while the old copy is enabled the copy from
+VeroPlugins never runs and only the old copy can show the move. The old marketplace file
+therefore stays in that repository for two releases after the move, so the old copy
+updates to a version that stops and shows the move row; its description points at
+VeroPlugins, no README or message names it, and the release after those two deletes it.
+`scripts/check-entries.sh` lists the exception (`legacy_marketplace()`) and fails once
+the file is gone but the exception is not. Today: VeroDiff, `verodiff-marketplace`,
+kept through the two releases after 1.3.0.
+
 ## 3. README
 
 Both copies identical. Written for a person who is not a programmer: short sentences,
@@ -200,8 +211,9 @@ repository's own social preview is its `horizontal-logo.png`.
 ## 11. What CI checks, and what you check
 
 `scripts/check-entries.sh` checks, for every entry: the name and prefix, no `version`,
-`git-subdir`, no `marketplace.json`, both shared files byte-identical, `release.yml`
-present and naming the plugin, `install.sh` naming VeroPlugins, both README copies
+`git-subdir`, no `marketplace.json` (or the temporary one of section 2, listing only
+this plugin, and its name in no README or module), both shared files byte-identical,
+`release.yml` present and naming the plugin, `install.sh` naming VeroPlugins, both README copies
 identical, the README opening with the horizontal logo and its `alt` carrying the slogan,
 the slogan opening both descriptions, the canonical Install and Updating lines present,
 the Working rules identical to the template's, both logos at their sizes, `validate` and

@@ -93,7 +93,13 @@ Rules for every entry, each checked by `scripts/check-entries.sh`:
   `description` in step with the plugin's `plugin.json` one in meaning; the script prints
   both side by side.
 - The plugin repository has no `.claude-plugin/marketplace.json` and carries
-  `hooks/source-check.ts` identical to `shared/hooks/source-check.ts`.
+  `hooks/source-check.ts` identical to `shared/hooks/source-check.ts`. One temporary
+  exception, listed in the script's `legacy_marketplace()`: VeroDiff keeps its old
+  `verodiff-marketplace` file for the two releases after 1.3.0, so copies installed from
+  it still update to a version that shows the move (see "Gotchas": one module per name).
+  The file lists only `vero-diff`, its description points at VeroPlugins, and the name
+  appears in no README or module. The release after those two deletes the file and the
+  exception together, or the script fails.
 
 **What an install does.** `claude plugin marketplace add GomelHawk/VeroPlugins` clones
 this repository into `~/.claude/plugins/marketplaces/vero-plugins/`. `claude plugin
@@ -115,10 +121,11 @@ is the source of truth; `sourceOf(root, provenance?)` still takes one, should th
 it. A home copy then reads `$.settings.read({ source })` for `user`, `project` and
 `local` and passes the objects to `legacyCopies(plugin, sources)`, which finds an older
 copy of the same plugin still enabled under another marketplace, with its scope. The
-texts - `stoppedBand`, `stoppedToast`, `stoppedMarkdown`, `moveSteps`, `MOVE_LABELS`,
-`legacyBand`, `legacyToast`, `legacyMarkdown`, `removeStep`, `REMOVE_LABEL`,
-`RESTART_NOTE`, `REPLACE_QUESTION`, `fillRefusedToast` - are the one wording every plugin
-shows. The check runs at `session.start` and on `turn.start`: every turn while stopped, so the
+texts - `stoppedBand`, `stoppedToast`, `stoppedMarkdown`, `moveSteps` (four commands:
+add VeroPlugins, install from it, remove this copy, remove its marketplace),
+`MOVE_LABELS`, `legacyBand`, `legacyToast`, `legacyMarkdown`, `removeSteps` (remove the
+old copy, then its marketplace), `REMOVE_LABELS`, `RESTART_NOTE`, `REPLACE_QUESTION`,
+`fillRefusedToast` - are the one wording every plugin shows. The check runs at `session.start` and on `turn.start`: every turn while stopped, so the
 old copy's removal is seen at the next Enter, and at most every 10 seconds while working.
 What a plugin does while stopped is each plugin's own `register.tsx` and its
 CLAUDE.md: every hook's first line is the engine's own behaviour, the command and the
@@ -219,6 +226,16 @@ one edit, see a step.
   path is wrong - which is what an entry for an unpushed plugin looks like.
 - **`--scope project|local` writes to the current directory's `.claude/`**, for both
   `marketplace add` and `plugin install`.
+- **One hooks module per plugin name.** Two enabled copies of `vero-diff` do not both
+  run: the engine loads the one whose `enabledPlugins` key comes first in the settings (a
+  managed scope before all) and logs `hooks module vero-diff@vero-plugins not loaded:
+  another plugin of that name loads first`. A person who installed from an old
+  marketplace has the old key first, so the VeroPlugins copy never runs while the old
+  one is enabled, and only the old copy can show the move. That is why an old
+  marketplace must keep delivering releases until its installs have moved (the temporary
+  exception in "How it works"), and why `legacyCopies` covers only the other order.
+  Verified with Claude Code 2.1.303 (2026-10-20): reversing the two keys in settings.json
+  reversed which copy loaded.
 - **A plugin cannot read its own provenance.** `$.plugin` has `name` and `root` only;
   `provenance` is on the `plugin.register` event, raised for the modules loading after
   the hooking one. The path is the check.

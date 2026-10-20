@@ -54,7 +54,7 @@ In the desktop app, where `/plugin` does not run: click **+** next to the prompt
 To check it took, type `/vero-x`: it describes the plugin.
 
 **Only from VeroPlugins.** VeroX works only when installed from VeroPlugins. A copy
-installed from anywhere else pauses and shows, above the prompt, three buttons that move
+installed from anywhere else pauses and shows, above the prompt, four buttons that move
 it here: press them one after another, pressing Enter after each, then restart Claude
 Code. KEEPS_X
 

@@ -82,10 +82,10 @@ under another marketplace. `foreign`, or a legacy copy, means **stopped** (`view
 `view.legacy`): every hook's first line is the engine's own behaviour; `session.start`
 registers the command and shows one toast; `/vero-x` answers `stoppedMarkdown()` /
 `legacyMarkdown()`; and the `AbovePrompt` hook, otherwise `next(e)`, draws the stopped
-row - `stoppedBand()` with the three `MOVE_LABELS` buttons (`vero-x-move:1..3`), or
-`legacyBand()` with `REMOVE_LABEL` (`vero-x-move:remove`), then `RESTART_NOTE`, then what
-`next(e)` drew beneath - with no ×. A button puts its command (`moveSteps()` /
-`removeStep()`) into the prompt box with `$.prompt.fill({ mode: 'replace' })` for the
+row - `stoppedBand()` with the four `MOVE_LABELS` buttons (`vero-x-move:1..4`), or
+`legacyBand()` with the two `REMOVE_LABELS` buttons (`vero-x-move:remove-1..2`), then
+`RESTART_NOTE`, then what `next(e)` drew beneath - with no ×. A button puts its command
+(`moveSteps()` / `removeSteps()`) into the prompt box with `$.prompt.fill({ mode: 'replace' })` for the
 person to press Enter on. A draft in the box (`$.prompt.read()`) is asked about first
 (`view.confirmingFill`, `REPLACE_QUESTION`, `vero-x-move:replace` / `vero-x-move:cancel`);
 a refused fill toasts `fillRefusedToast()`. All texts, keys and rules come from

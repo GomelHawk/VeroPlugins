@@ -4,7 +4,7 @@ import type { EngineInterface, Register } from 'claude-code'
 import type { View } from '../types'
 import {
   MOVE_LABELS,
-  REMOVE_LABEL,
+  REMOVE_LABELS,
   REPLACE_NO,
   REPLACE_QUESTION,
   REPLACE_YES,
@@ -15,7 +15,7 @@ import {
   legacyMarkdown,
   legacyToast,
   moveSteps,
-  removeStep,
+  removeSteps,
   sourceOf,
   stoppedBand,
   stoppedMarkdown,
@@ -181,9 +181,11 @@ export const register: Register = on => {
         </Box>
       ) : legacy !== undefined ? (
         <Box flexDirection="row" gap={2}>
-          <Button key="vero-x-move:remove" onPress={fill(removeStep(PLUGIN, legacy))}>
-            {REMOVE_LABEL}
-          </Button>
+          {removeSteps(PLUGIN, legacy).map((command, i) => (
+            <Button key={`vero-x-move:remove-${i + 1}`} onPress={fill(command)}>
+              {REMOVE_LABELS[i]}
+            </Button>
+          ))}
           <Text dimColor>{RESTART_NOTE}</Text>
         </Box>
       ) : (
