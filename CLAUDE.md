@@ -36,8 +36,8 @@ stops working and shows the person the commands to move - how, is `shared/`'s jo
 `PLAN-unify-sources.md` (the owner's working file, untracked).
 
 Plugins listed: VeroDiff (`vero-diff`), VeroDotto (`vero-dotto`), VeroRunto
-(`vero-runto`). Every plugin here carries the Vero name: `vero-<name>`, display
-`Vero<Name>`. English only, MIT.
+(`vero-runto`), VeroInserto (`vero-inserto`). Every plugin here carries the Vero name:
+`vero-<name>`, display `Vero<Name>`. English only, MIT.
 
 ## Repository layout
 

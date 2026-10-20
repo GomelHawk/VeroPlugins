@@ -1,6 +1,6 @@
 {
   "name": "vero-plugins",
-  "description": "VeroDiff, VeroDotto, VeroRunto: Claude Code plugins in one marketplace",
+  "description": "VeroDiff, VeroDotto, VeroRunto, VeroInserto: Claude Code plugins in one marketplace",
   "owner": {
     "name": "Dmitry Koshelenko",
     "url": "https://github.com/GomelHawk"
@@ -38,6 +38,17 @@
       "description": "Click. Run. Done. Copy and Run buttons after every ! command Claude suggests; Run goes through Claude Code's Bash tool under your permission rules",
       "category": "productivity",
       "tags": ["shell", "bash", "command", "run"]
+    },
+    {
+      "name": "vero-inserto",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/GomelHawk/VeroInserto.git",
+        "path": "plugins/vero-inserto"
+      },
+      "description": "From tree to prompt. Type @@, pick a file or folder from your project tree, and its @path lands at the cursor",
+      "category": "productivity",
+      "tags": ["files", "tree", "mention", "prompt"]
     }
   ]
 }
